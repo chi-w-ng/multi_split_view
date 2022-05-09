@@ -7,11 +7,15 @@ import 'package:flutter/widgets.dart';
 class DividerPainters {
   /// Builds a divider painter to set the background color.
   static DividerPainter background(
-      {bool animationEnabled = DividerPainter.defaultAnimationEnabled,
+      {double? startOffset,
+      double? endOffset,
+      bool animationEnabled = DividerPainter.defaultAnimationEnabled,
       Duration animationDuration = DividerPainter.defaultAnimationDuration,
       Color? color,
       Color? highlightedColor}) {
     return DividerPainter(
+        startOffset: startOffset,
+        endOffset: endOffset,
         animationEnabled: animationEnabled,
         animationDuration: animationDuration,
         backgroundColor: color,
@@ -113,11 +117,14 @@ class DividerPainter {
   static const Duration defaultAnimationDuration = Duration(milliseconds: 250);
 
   DividerPainter(
-      {this.backgroundColor,
+      {this.startOffset = 0.0,
+      this.endOffset = 0.0,
+      this.backgroundColor,
       this.highlightedBackgroundColor,
       this.animationEnabled = DividerPainter.defaultAnimationEnabled,
       this.animationDuration = DividerPainter.defaultAnimationDuration});
-
+  final double? startOffset;
+  final double? endOffset;
   final bool animationEnabled;
   final Color? backgroundColor;
   final Color? highlightedBackgroundColor;
@@ -156,7 +163,9 @@ class DividerPainter {
         ..color = color
         ..isAntiAlias = true;
       canvas.drawRect(
-          Rect.fromLTWH(0, 0, dividerSize.width, dividerSize.height), paint);
+          Rect.fromLTWH(0, startOffset!, dividerSize.width,
+              dividerSize.height - endOffset!),
+          paint);
     }
   }
 
