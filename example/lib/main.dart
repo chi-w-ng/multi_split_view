@@ -1,5 +1,5 @@
 import 'dart:math';
-import 'package:flutter/cupertino.dart';
+
 import 'package:flutter/material.dart';
 import 'package:multi_split_view/multi_split_view.dart';
 
@@ -19,57 +19,53 @@ class MultiSplitViewExampleApp extends StatelessWidget {
 }
 
 class MultiSplitViewExample extends StatefulWidget {
-  final List<Color> _colors = [
-    Colors.red,
-    Colors.blue,
-    Colors.green,
-    Colors.purple,
-    Colors.brown,
-    Colors.pinkAccent
-  ];
-
   @override
   _MultiSplitViewExampleState createState() => _MultiSplitViewExampleState();
 }
 
 class _MultiSplitViewExampleState extends State<MultiSplitViewExample> {
-  final int _max = 40;
-  int _horizontalVisibleWidgets = 3;
-  MultiSplitViewController? _c;
+  static const int _max = 40;
+  static const int _initial = 3;
+
+  late final List<RandomColorBox> _boxes;
+
+  MultiSplitViewController _controller = MultiSplitViewController();
+
+  @override
+  void initState() {
+    super.initState();
+    _boxes = List.generate(_initial, (_) => _createBox());
+  }
 
   @override
   Widget build(BuildContext context) {
     Widget buttons = Container(
         child: Row(children: [
-          Text('Horizontal widgets: $_horizontalVisibleWidgets / $_max'),
+          Text('Horizontal widgets: ${_boxes.length} / $_max'),
           SizedBox(width: 16),
-          ElevatedButton(child: Text('rebuild'), onPressed: _onAddButtonClick),
+          ElevatedButton(child: Text('Add'), onPressed: _onAddButtonClick),
           SizedBox(width: 16),
-          ElevatedButton(child: Text('new controller e rebuild'), onPressed: _onRemoveButtonClick)
+          ElevatedButton(
+              child: Text('Remove'), onPressed: _onRemoveButtonClick),
+          SizedBox(width: 16),
+          ElevatedButton(
+              child: Text('Change second area weight'),
+              onPressed: _onSetWeightButtonClick)
         ], crossAxisAlignment: CrossAxisAlignment.center),
         color: Colors.white,
         padding: EdgeInsets.all(8));
 
-    List<Widget> children = List.empty(growable: true);
-    for (int i = 0; i < _horizontalVisibleWidgets; i++) {
-      Widget view = Container(
-        child: Center(child: TextFormField(controller: TextEditingController(text: "View " + (i + 1).toString()))),
-        color: widget._colors[i % widget._colors.length],
-      );
-      children.add(view);
-    }
+    final List<Widget> children = _boxes;
 
-
-
-    MultiSplitView multiSplitView = MultiSplitView(initialWeights: [.05],
+    MultiSplitView multiSplitView = MultiSplitView(
         children: children,
-        controller: _c,
-        onSizeChange: _onSizeChange);
+        onWeightChange: _onWeightChange,
+        controller: _controller);
 
     MultiSplitViewTheme theme = MultiSplitViewTheme(
         child: multiSplitView,
         data: MultiSplitViewThemeData(
-            dividerPainter: DividerPainters.grooved1()));
+            dividerPainter: DividerPainters.grooved2()));
 
     return Scaffold(
         appBar: AppBar(title: Text('Multi Split View Example')),
@@ -78,20 +74,66 @@ class _MultiSplitViewExampleState extends State<MultiSplitViewExample> {
         );
   }
 
-  _onSizeChange(int childIndex1, int childIndex2) {
-    // print('change - childIndex1: $childIndex1 - childIndex2: $childIndex2');
+  _onWeightChange() {
+    print('weight change');
   }
 
   _onRemoveButtonClick() {
-    setState(() {
-      _c=MultiSplitViewController();
-      //_horizontalVisibleWidgets = max(0, _horizontalVisibleWidgets - 1);
-    });
+    if (_boxes.isNotEmpty) {
+      _removeBox(_boxes.first);
+    }
+  }
+
+  _onSetWeightButtonClick() {
+    if (_controller.areas.length >= 2) {
+      _controller.areas = [Area(), Area(weight: .1)];
+    }
   }
 
   _onAddButtonClick() {
-    setState(() {
-      //_horizontalVisibleWidgets = min(_max, _horizontalVisibleWidgets + 1);
-    });
+    setState(() => _boxes.insert(0, _createBox()));
+  }
+
+  RandomColorBox _createBox() {
+    return RandomColorBox(
+      key: UniqueKey(),
+      onRemove: _removeBox,
+    );
+  }
+
+  void _removeBox(RandomColorBox box) {
+    setState(() => _boxes.remove(box));
+  }
+}
+
+class RandomColorBox extends StatefulWidget {
+  const RandomColorBox({
+    required this.onRemove,
+    Key? key,
+  }) : super(key: key);
+
+  final void Function(RandomColorBox box) onRemove;
+
+  @override
+  State<RandomColorBox> createState() => _RandomColorBoxState();
+}
+
+class _RandomColorBoxState extends State<RandomColorBox> {
+  late Color _color;
+
+  @override
+  void initState() {
+    super.initState();
+    _color = Colors.primaries[Random().nextInt(Colors.primaries.length)];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () => widget.onRemove(widget),
+      child: ColoredBox(
+        color: _color,
+      ),
+    );
   }
 }

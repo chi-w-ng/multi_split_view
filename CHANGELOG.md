@@ -1,3 +1,54 @@
+## 2.1.0
+
+* `OnSizeChange` renamed to `OnWeightChange`.
+  * Removing `childIndex1` and `childIndex2` parameters. 
+* Bugfix
+  * Window resizing allowing area with a size smaller than the `minimalSize`.
+  * `OnWeightChange` is not getting notified on window resizing.
+* Fixing the README example.
+
+## 2.0.1
+
+* Bugfix
+  * State is not being preserved when children are added/removed.
+
+## 2.0.0
+
+* `MultiSplitViewController`
+  * `sizes`, `weights`, `minimalSizes` and `minimalWeights` has been replaced by `areas`.
+  * `globalMinimalWeight` has been removed.
+  * `globalMinimalSize` has been removed.
+* `Area`
+  * Defines each child area in the `MultiSplitView`.
+  * Allow configure `size`, `weight`, `minimalWeight` and `minimalSize`.
+  * Allow simultaneous use of `size` and `weight` (in different areas).
+  * Allow empty `weight` or `size` (zero).
+* Bugfix
+  * Children without clip.
+
+## 1.13.0
+
+* `MultiSplitView`
+  * `minimalWeight` renamed to `globalMinimalWeight`
+  * `minimalSize` renamed to `globalMinimalSize`
+  * `minimalWeights` has been added to set individual child minimal weights.
+  * `minimalSizes` has been added to set individual child minimal sizes.
+
+## 1.12.0
+
+* `MultiSplitViewController`
+  * Removing the internal `setWeight` method.
+  * Adding Setter to the `weights`.
+
+## 1.11.0+1
+
+* Updating the README
+
+## 1.11.0
+
+* Widget as a custom divider
+* Workaround for Flutter's anti-aliasing issue as https://github.com/flutter/flutter/issues/14288
+
 ## 1.10.0+1
 
 * Updating the README
